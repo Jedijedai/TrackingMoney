@@ -111,8 +111,8 @@ fun DashboardScreen(
                 data = chartData,
                 totalAmountText = "Rp 2.5jt",
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
+                    .size(240.dp)
+                    .align(Alignment.CenterHorizontally)
             )
             
             Spacer(modifier = Modifier.height(16.dp))
