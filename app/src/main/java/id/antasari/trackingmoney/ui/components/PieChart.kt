@@ -65,17 +65,19 @@ fun DonutChart(
                     style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
                 )
             } else {
-                sweepAngles.forEachIndexed { index, sweepAngle ->
+                val gapAngle = if (sweepAngles.size > 1) 6f else 0f
+                sweepAngles.forEachIndexed { index, originalSweep ->
+                    val sweepAngle = (originalSweep - gapAngle).coerceAtLeast(0.1f)
                     drawArc(
                         color = data[index].color,
-                        startAngle = startAngle,
+                        startAngle = startAngle + (gapAngle / 2),
                         sweepAngle = sweepAngle,
                         useCenter = false,
                         topLeft = topLeft,
                         size = arcSize,
-                        style = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
                     )
-                    startAngle += sweepAngle
+                    startAngle += originalSweep
                 }
             }
         }

@@ -52,46 +52,47 @@ fun DashboardScreen(
             // Summary Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = "Total Saldo",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Rp 5.500.000", // TODO: Real data
-                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.primary
                     )
                     
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                     
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Column {
-                            Text("Pemasukan", color = Color(0xFF4CAF50), style = MaterialTheme.typography.bodyMedium)
-                            Text("Rp 8.000.000", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("Pemasukan", color = id.antasari.trackingmoney.ui.theme.IncomeColor, style = MaterialTheme.typography.labelMedium)
+                            Text("Rp 8.000.000", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                         }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text("Pengeluaran", color = Color(0xFFF44336), style = MaterialTheme.typography.bodyMedium)
-                            Text("Rp 2.500.000", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                        Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("Pengeluaran", color = id.antasari.trackingmoney.ui.theme.ExpenseColor, style = MaterialTheme.typography.labelMedium)
+                            Text("Rp 2.500.000", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Chart Section
             Text(
@@ -100,7 +101,7 @@ fun DashboardScreen(
                 color = MaterialTheme.colorScheme.onBackground
             )
             
-            // Dummy Data for Chart
+            Spacer(modifier = Modifier.height(24.dp))
             val chartData = listOf(
                 ChartData(1000000f, ChartColors[0]), // Makan
                 ChartData(500000f, ChartColors[1]),  // Bensin
@@ -115,12 +116,12 @@ fun DashboardScreen(
                     .align(Alignment.CenterHorizontally)
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
             // Legend
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
             ) {
                 LegendItem(color = ChartColors[0], label = "Makan")
                 LegendItem(color = ChartColors[1], label = "Bensin")
@@ -139,7 +140,7 @@ fun LegendItem(color: Color, label: String) {
                 .clip(RoundedCornerShape(4.dp))
                 .background(color)
         )
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground)
     }
 }

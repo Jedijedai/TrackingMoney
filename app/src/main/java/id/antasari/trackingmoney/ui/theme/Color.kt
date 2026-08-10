@@ -18,9 +18,12 @@ val LightSurface = Color(0xFFFFFFFF)
 val LightText = Color(0xFF212121)
 
 // Transaction Colors
-val IncomeColor = Color(0xFF4CAF50)
-val ExpenseColor = Color(0xFFF44336)
+val IncomeColor = Color(0xFF10B981) // Emerald 500
+val ExpenseColor = Color(0xFFEF4444) // Red 500
 val ChartColors = listOf(
-    Color(0xFF42A5F5), Color(0xFF66BB6A), Color(0xFFEF5350),
-    Color(0xFFFFCA28), Color(0xFFAB47BC), Color(0xFF26C6DA)
+    Color(0xFF3B82F6), // Blue
+    Color(0xFF8B5CF6), // Violet
+    Color(0xFFF59E0B), // Amber
+    Color(0xFF10B981), // Emerald
+    Color(0xFFEC4899)  // Pink
 )
