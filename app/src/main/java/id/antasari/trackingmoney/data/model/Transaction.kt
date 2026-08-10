@@ -20,7 +20,7 @@ import androidx.room.PrimaryKey
 data class Transaction(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val amount: Double,
+    val amount: Long,
     val categoryId: Int,
     val dateMillis: Long,
     val note: String,

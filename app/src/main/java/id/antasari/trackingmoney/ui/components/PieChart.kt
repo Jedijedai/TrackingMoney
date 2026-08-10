@@ -42,7 +42,7 @@ fun DonutChart(
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
             var startAngle = -90f // Start from top
-            val strokeWidth = 80f // Thickness of the donut
+            val strokeWidth = 80.dp.toPx() // Thickness of the donut
 
             if (data.isEmpty() || totalValue == 0f) {
                 // Empty state donut

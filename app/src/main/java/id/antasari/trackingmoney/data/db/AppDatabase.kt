@@ -26,15 +26,13 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
+                INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "tracking_money_db"
                 )
                 .addCallback(DatabaseCallback())
-                .build()
-                INSTANCE = instance
-                instance
+                .build().also { INSTANCE = it }
             }
         }
     }
@@ -43,7 +41,7 @@ abstract class AppDatabase : RoomDatabase() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
             INSTANCE?.let { database ->
-                CoroutineScope(Dispatchers.IO).launch {
+                kotlinx.coroutines.runBlocking {
                     populateDatabase(database.categoryDao())
                 }
             }

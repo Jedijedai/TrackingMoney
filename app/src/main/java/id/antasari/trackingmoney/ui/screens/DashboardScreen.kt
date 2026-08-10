@@ -2,7 +2,9 @@ package id.antasari.trackingmoney.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,7 +19,9 @@ import id.antasari.trackingmoney.ui.theme.ChartColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(
+    onAddTransactionClick: () -> Unit = {}
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -30,7 +34,7 @@ fun DashboardScreen() {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: Navigate to Add Transaction */ },
+                onClick = onAddTransactionClick,
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Text("+", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onPrimary)
@@ -42,6 +46,7 @@ fun DashboardScreen() {
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
             // Summary Card
