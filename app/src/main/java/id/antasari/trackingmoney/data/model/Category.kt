@@ -9,6 +9,6 @@ data class Category(
     val id: Int = 0,
     val name: String,
     val type: TransactionType,
-    val iconId: Int = 0, // Reference to drawable resource if needed
+    val icon: String = "", // Stores emoji string
     val isDefault: Boolean = false // To differentiate default categories from user-created ones
 )
