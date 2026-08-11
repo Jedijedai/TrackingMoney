@@ -5,8 +5,8 @@ import java.util.Locale
 
 object CurrencyUtils {
     fun formatRupiah(amount: Long): String {
-        // Use Locale("id", "ID") for Indonesian Rupiah formatting
-        val localeID = Locale("id", "ID")
+        // Use Locale.Builder() for Indonesian Rupiah formatting
+        val localeID = Locale.Builder().setLanguage("id").setRegion("ID").build()
         val numberFormat = NumberFormat.getCurrencyInstance(localeID)
         numberFormat.maximumFractionDigits = 0
         

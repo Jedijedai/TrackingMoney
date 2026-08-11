@@ -2,26 +2,26 @@ package id.antasari.trackingmoney.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Primary Colors
-val BluePrimary = Color(0xFF2196F3)
-val BluePrimaryDark = Color(0xFF1976D2)
-val BlueLight = Color(0xFFBBDEFB)
+// Primary Colors (Premium Emerald)
+val BluePrimary = Color(0xFF059669) // Emerald 600
+val BluePrimaryDark = Color(0xFF047857) // Emerald 700
+val BlueLight = Color(0xFFD1FAE5) // Emerald 100
 
-// Dark Theme Colors
-val DarkBackground = Color(0xFF121212)
-val DarkSurface = Color(0xFF1E1E1E)
-val DarkText = Color(0xFFE0E0E0)
+// Dark Theme Colors (OLED/Zinc)
+val DarkBackground = Color(0xFF09090B) // Zinc 950
+val DarkSurface = Color(0xFF18181B) // Zinc 900
+val DarkText = Color(0xFFFAFAFA) // Zinc 50
 
-// Light Theme Colors
-val LightBackground = Color(0xFFF5F7FA)
+// Light Theme Colors (Clean Slate)
+val LightBackground = Color(0xFFF8FAFC) // Slate 50
 val LightSurface = Color(0xFFFFFFFF)
-val LightText = Color(0xFF212121)
+val LightText = Color(0xFF0F172A) // Slate 900
 
-// Transaction Colors
+// Transaction Colors (Softer, modern)
 val IncomeColor = Color(0xFF10B981) // Emerald 500
-val ExpenseColor = Color(0xFFEF4444) // Red 500
+val ExpenseColor = Color(0xFFF43F5E) // Rose 500
 val ChartColors = listOf(
-    Color(0xFF3B82F6), // Blue
+    Color(0xFF0EA5E9), // Sky
     Color(0xFF8B5CF6), // Violet
     Color(0xFFF59E0B), // Amber
     Color(0xFF10B981), // Emerald
