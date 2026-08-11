@@ -37,9 +37,7 @@ fun DashboardScreen(
     val uiState by viewModel.uiState.collectAsState()
     
     val formatRp = { amount: Long ->
-        val format = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-        format.maximumFractionDigits = 0
-        format.format(amount).replace("Rp", "Rp ")
+        id.antasari.trackingmoney.utils.CurrencyUtils.formatRupiah(amount)
     }
 
     Scaffold(

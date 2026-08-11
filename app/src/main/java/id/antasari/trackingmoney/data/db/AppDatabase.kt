@@ -12,6 +12,7 @@ import id.antasari.trackingmoney.data.model.Transaction
 import id.antasari.trackingmoney.data.model.TransactionType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Database(entities = [Category::class, Transaction::class], version = 2, exportSchema = false)
@@ -39,11 +40,14 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     private class DatabaseCallback : RoomDatabase.Callback() {
-        override fun onCreate(db: SupportSQLiteDatabase) {
-            super.onCreate(db)
+        override fun onOpen(db: SupportSQLiteDatabase) {
+            super.onOpen(db)
             INSTANCE?.let { database ->
-                kotlinx.coroutines.runBlocking {
-                    populateDatabase(database.categoryDao())
+                CoroutineScope(Dispatchers.IO).launch {
+                    val categoryDao = database.categoryDao()
+                    if (categoryDao.getAllCategories().first().isEmpty()) {
+                        populateDatabase(categoryDao)
+                    }
                 }
             }
         }

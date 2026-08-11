@@ -23,6 +23,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.AnnotatedString
+import id.antasari.trackingmoney.utils.CurrencyUtils
 import id.antasari.trackingmoney.data.model.Category
 import id.antasari.trackingmoney.data.model.TransactionType
 import id.antasari.trackingmoney.ui.theme.ExpenseColor
@@ -112,6 +117,7 @@ fun AddTransactionScreen(
                 onValueChange = { viewModel.setAmount(it) },
                 label = { Text("Nominal (Rp)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                visualTransformation = CurrencyVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                 singleLine = true,
@@ -202,5 +208,26 @@ fun CategoryItem(
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1
         )
+    }
+}
+
+class CurrencyVisualTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val originalText = text.text
+        if (originalText.isEmpty()) return TransformedText(text, OffsetMapping.Identity)
+
+        val parsed = originalText.toLongOrNull() ?: 0L
+        val formatted = CurrencyUtils.formatRupiah(parsed)
+
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                return formatted.length
+            }
+
+            override fun transformedToOriginal(offset: Int): Int {
+                return originalText.length
+            }
+        }
+        return TransformedText(AnnotatedString(formatted), offsetMapping)
     }
 }
