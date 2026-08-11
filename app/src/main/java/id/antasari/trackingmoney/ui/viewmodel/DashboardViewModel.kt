@@ -11,8 +11,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 data class TransactionItemUiState(
     val id: Int,
@@ -30,7 +34,8 @@ data class DashboardUiState(
     val totalBalance: Long = 0L,
     val expenseChartData: List<ChartData> = emptyList(),
     val legendItems: List<Pair<String, androidx.compose.ui.graphics.Color>> = emptyList(),
-    val recentTransactions: List<TransactionItemUiState> = emptyList()
+    val recentTransactions: List<TransactionItemUiState> = emptyList(),
+    val selectedMonthName: String = ""
 )
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
@@ -40,45 +45,57 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
+    
+    private val _selectedDate = MutableStateFlow(Calendar.getInstance())
 
     init {
         loadDashboardData()
     }
+    
+    fun previousMonth() {
+        val cal = _selectedDate.value.clone() as Calendar
+        cal.add(Calendar.MONTH, -1)
+        _selectedDate.value = cal
+    }
+    
+    fun nextMonth() {
+        val cal = _selectedDate.value.clone() as Calendar
+        cal.add(Calendar.MONTH, 1)
+        _selectedDate.value = cal
+    }
 
     private fun loadDashboardData() {
         viewModelScope.launch {
-            val calendar = Calendar.getInstance()
-            calendar.set(Calendar.DAY_OF_MONTH, 1)
-            calendar.set(Calendar.HOUR_OF_DAY, 0)
-            calendar.set(Calendar.MINUTE, 0)
-            calendar.set(Calendar.SECOND, 0)
-            val startOfMonth = calendar.timeInMillis
-            
-            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
-            calendar.set(Calendar.HOUR_OF_DAY, 23)
-            calendar.set(Calendar.MINUTE, 59)
-            calendar.set(Calendar.SECOND, 59)
-            val endOfMonth = calendar.timeInMillis
+            @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+            _selectedDate.flatMapLatest { calendar ->
+                val cal = calendar.clone() as Calendar
+                val formatter = SimpleDateFormat("MMMM yyyy", Locale("id", "ID"))
+                val monthName = formatter.format(cal.time)
+                
+                cal.set(Calendar.DAY_OF_MONTH, 1)
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+                val startOfMonth = cal.timeInMillis
+                
+                cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+                cal.set(Calendar.HOUR_OF_DAY, 23)
+                cal.set(Calendar.MINUTE, 59)
+                cal.set(Calendar.SECOND, 59)
+                cal.set(Calendar.MILLISECOND, 999)
+                val endOfMonth = cal.timeInMillis
 
-            // We launch coroutines to collect flows or just get snapshot.
-            // Since DAO returns Flow, we can collect them.
-            launch {
-                transactionDao.getTotalAmountByTypeAndDateRange(TransactionType.INCOME.name, startOfMonth, endOfMonth).collect { income ->
-                    _uiState.value = _uiState.value.copy(totalIncome = income ?: 0L, totalBalance = (income ?: 0L) - _uiState.value.totalExpense)
-                }
-            }
-            
-            launch {
-                transactionDao.getTotalAmountByTypeAndDateRange(TransactionType.EXPENSE.name, startOfMonth, endOfMonth).collect { expense ->
-                    _uiState.value = _uiState.value.copy(totalExpense = expense ?: 0L, totalBalance = _uiState.value.totalIncome - (expense ?: 0L))
-                }
-            }
-            
-            launch {
                 combine(
+                    transactionDao.getTotalAmountByTypeAndDateRange(TransactionType.INCOME.name, startOfMonth, endOfMonth),
+                    transactionDao.getTotalAmountByTypeAndDateRange(TransactionType.EXPENSE.name, startOfMonth, endOfMonth),
                     transactionDao.getTransactionsByDateRange(startOfMonth, endOfMonth),
                     categoryDao.getAllCategories()
-                ) { txs, allCategories ->
+                ) { income, expense, txs, allCategories ->
+                    val totalIncome = income ?: 0L
+                    val totalExpense = expense ?: 0L
+                    val totalBalance = totalIncome - totalExpense
+                    
                     val expensesThisMonth = txs.filter { it.type == TransactionType.EXPENSE }
                     val groupedExpenses = expensesThisMonth.groupBy { it.categoryId }
                     
@@ -110,12 +127,18 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                         )
                     }
                     
-                    _uiState.value = _uiState.value.copy(
+                    DashboardUiState(
+                        totalIncome = totalIncome,
+                        totalExpense = totalExpense,
+                        totalBalance = totalBalance,
                         expenseChartData = chartDataList,
                         legendItems = legendList,
-                        recentTransactions = recentList
+                        recentTransactions = recentList,
+                        selectedMonthName = monthName
                     )
-                }.collect { }
+                }
+            }.collect { newState ->
+                _uiState.value = newState
             }
         }
     }
