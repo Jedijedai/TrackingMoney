@@ -46,7 +46,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
     
-    private val _selectedDate = MutableStateFlow(Calendar.getInstance())
+    private val _selectedDate = MutableStateFlow(Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")))
 
     init {
         loadDashboardData()
@@ -69,7 +69,9 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
             _selectedDate.flatMapLatest { calendar ->
                 val cal = calendar.clone() as Calendar
-                val formatter = SimpleDateFormat("MMMM yyyy", Locale("id", "ID"))
+                val formatter = SimpleDateFormat("MMMM yyyy", Locale("id", "ID")).apply {
+                    timeZone = java.util.TimeZone.getTimeZone("UTC")
+                }
                 val monthName = formatter.format(cal.time)
                 
                 val utcCal = Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))

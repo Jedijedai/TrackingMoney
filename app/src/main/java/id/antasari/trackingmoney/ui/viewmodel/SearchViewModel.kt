@@ -27,20 +27,22 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val categoryDao = AppDatabase.getDatabase(application).categoryDao()
 
     private val _query = MutableStateFlow("")
+    @OptIn(FlowPreview::class)
+    private val _debouncedQuery = _query.debounce(300)
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val uiState: StateFlow<SearchUiState> = _query
-        .debounce(300)
+    private val searchResultsFlow = _debouncedQuery
         .flatMapLatest { query ->
             if (query.isBlank()) {
-                flowOf(SearchUiState(query = query, searchResults = emptyList()))
+                flowOf(emptyList<TransactionItemUiState>())
             } else {
+                val escapedQuery = query.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
                 combine(
-                    transactionDao.searchTransactions(query),
+                    transactionDao.searchTransactions(escapedQuery),
                     categoryDao.getAllCategories()
                 ) { transactions, categories ->
                     val categoryMap = categories.associateBy { it.id }
-                    val results = transactions.map { tx ->
+                    transactions.map { tx ->
                         val category = categoryMap[tx.categoryId]
                         TransactionItemUiState(
                             id = tx.id,
@@ -52,15 +54,26 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                             icon = category?.icon ?: "❓"
                         )
                     }
-                    SearchUiState(query = query, searchResults = results)
                 }
             }
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = SearchUiState()
+
+    val uiState: StateFlow<SearchUiState> = combine(
+        _query,
+        _debouncedQuery,
+        searchResultsFlow
+    ) { query, debouncedQuery, results ->
+        val isLoading = query != debouncedQuery
+        SearchUiState(
+            query = query,
+            searchResults = if (isLoading) emptyList() else results,
+            isLoading = isLoading
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = SearchUiState()
+    )
 
     fun onQueryChange(newQuery: String) {
         _query.value = newQuery

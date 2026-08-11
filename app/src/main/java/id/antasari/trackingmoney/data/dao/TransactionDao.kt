@@ -14,7 +14,7 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions ORDER BY dateMillis DESC")
     fun getAllTransactions(): Flow<List<Transaction>>
 
-    @Query("SELECT * FROM transactions WHERE note LIKE '%' || :query || '%' ORDER BY dateMillis DESC")
+    @Query("SELECT * FROM transactions WHERE note LIKE '%' || :query || '%' ESCAPE '\\' ORDER BY dateMillis DESC")
     fun searchTransactions(query: String): Flow<List<Transaction>>
 
     @Query("SELECT * FROM transactions WHERE dateMillis >= :startDate AND dateMillis <= :endDate ORDER BY dateMillis DESC")
