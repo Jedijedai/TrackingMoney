@@ -20,6 +20,9 @@ interface TransactionDao {
     @Query("SELECT SUM(amount) FROM transactions WHERE type = :type AND dateMillis >= :startDate AND dateMillis <= :endDate")
     fun getTotalAmountByTypeAndDateRange(type: String, startDate: Long, endDate: Long): Flow<Long?>
 
+    @Query("SELECT * FROM transactions WHERE id = :id LIMIT 1")
+    suspend fun getTransactionById(id: Int): Transaction?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTransaction(transaction: Transaction)
 

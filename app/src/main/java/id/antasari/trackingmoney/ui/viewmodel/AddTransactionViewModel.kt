@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 data class AddTransactionUiState(
@@ -24,7 +25,9 @@ data class AddTransactionUiState(
     val selectedCategory: Category? = null,
     val categories: List<Category> = emptyList(),
     val isSaved: Boolean = false,
-    val isSaving: Boolean = false
+    val isSaving: Boolean = false,
+    val transactionId: Int? = null,
+    val dateMillis: Long? = null
 )
 
 class AddTransactionViewModel(application: Application) : AndroidViewModel(application) {
@@ -84,26 +87,80 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
         _uiState.value = _uiState.value.copy(selectedCategory = category)
     }
 
+    fun loadTransaction(id: Int) {
+        viewModelScope.launch {
+            val transaction = transactionDao.getTransactionById(id)
+            if (transaction != null) {
+                _uiState.value = _uiState.value.copy(
+                    amount = transaction.amount.toString(),
+                    note = transaction.note,
+                    selectedType = transaction.type,
+                    transactionId = transaction.id,
+                    dateMillis = transaction.dateMillis
+                )
+                // The category selection will be updated automatically via the flatMapLatest 
+                // in loadCategories() because selectedType is set. However, we also need to set 
+                // selectedCategory once categories are loaded. We can do this by setting a temporary 
+                // selectedCategory with just the id, or handling it inside loadCategories.
+                // Let's just wait for the category flow to emit. We'll set a placeholder category.
+                val category = categoryDao.getCategoriesByType(transaction.type.name).firstOrNull()?.find { it.id == transaction.categoryId }
+                if (category != null) {
+                    _uiState.value = _uiState.value.copy(selectedCategory = category)
+                }
+            }
+        }
+    }
+
     fun saveTransaction() {
         val currentState = _uiState.value
         if (currentState.isSaving || currentState.isSaved) return
 
-        val amountVal = currentState.amount.toLongOrNull() ?: 0L
+        val amountVal = currentState.amount.replace(".", "").toLongOrNull() ?: 0L
         val categoryId = currentState.selectedCategory?.id
         
         if (amountVal > 0 && categoryId != null) {
             _uiState.value = currentState.copy(isSaving = true)
             viewModelScope.launch {
                 val transaction = Transaction(
+                    id = currentState.transactionId ?: 0,
                     amount = amountVal,
                     categoryId = categoryId,
-                    dateMillis = System.currentTimeMillis(),
+                    dateMillis = currentState.dateMillis ?: System.currentTimeMillis(),
                     note = currentState.note,
                     type = currentState.selectedType
                 )
-                transactionDao.insertTransaction(transaction)
+                if (currentState.transactionId != null) {
+                    transactionDao.updateTransaction(transaction)
+                } else {
+                    transactionDao.insertTransaction(transaction)
+                }
                 _uiState.value = _uiState.value.copy(isSaving = false, isSaved = true)
             }
         }
+    }
+
+    fun deleteTransaction() {
+        val currentState = _uiState.value
+        val txId = currentState.transactionId
+        if (txId != null && !currentState.isSaving) {
+            _uiState.value = currentState.copy(isSaving = true)
+            viewModelScope.launch {
+                val transaction = transactionDao.getTransactionById(txId)
+                if (transaction != null) {
+                    transactionDao.deleteTransaction(transaction)
+                }
+                _uiState.value = _uiState.value.copy(isSaving = false, isSaved = true)
+            }
+        }
+    }
+}
+
+class AddTransactionViewModelFactory(private val application: Application) : androidx.lifecycle.ViewModelProvider.Factory {
+    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(AddTransactionViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return AddTransactionViewModel(application) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

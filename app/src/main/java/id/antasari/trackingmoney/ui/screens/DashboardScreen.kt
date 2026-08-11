@@ -1,6 +1,8 @@
 package id.antasari.trackingmoney.ui.screens
 
+import android.app.Application
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,15 +15,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import id.antasari.trackingmoney.ui.components.ChartData
 import id.antasari.trackingmoney.ui.components.DonutChart
 import id.antasari.trackingmoney.ui.theme.ChartColors
+import id.antasari.trackingmoney.ui.theme.ExpenseColor
+import id.antasari.trackingmoney.ui.theme.IncomeColor
 import id.antasari.trackingmoney.ui.viewmodel.DashboardViewModel
 import id.antasari.trackingmoney.ui.viewmodel.TransactionItemUiState
 import id.antasari.trackingmoney.data.model.TransactionType
+import id.antasari.trackingmoney.utils.CurrencyUtils
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -32,6 +38,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun DashboardScreen(
     onNavigateToAddTransaction: () -> Unit = {},
+    onNavigateToEditTransaction: (Int) -> Unit = {},
     viewModel: DashboardViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -164,7 +171,7 @@ fun DashboardScreen(
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     uiState.recentTransactions.forEach { item ->
-                        TransactionItemRow(item = item, formatRp = formatRp)
+                        TransactionItemRow(item = item, onEditClick = { onNavigateToEditTransaction(it) })
                     }
                 }
             }
@@ -189,7 +196,7 @@ fun LegendItem(color: Color, label: String) {
 }
 
 @Composable
-fun TransactionItemRow(item: TransactionItemUiState, formatRp: (Long) -> String) {
+fun TransactionItemRow(item: TransactionItemUiState, onEditClick: (Int) -> Unit = {}) {
     val formatter = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("id", "ID"))
     val dateString = formatter.format(Date(item.dateMillis))
 
@@ -198,6 +205,7 @@ fun TransactionItemRow(item: TransactionItemUiState, formatRp: (Long) -> String)
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable { onEditClick(item.id) }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -214,36 +222,30 @@ fun TransactionItemRow(item: TransactionItemUiState, formatRp: (Long) -> String)
         
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = item.categoryName, 
-                style = MaterialTheme.typography.titleMedium, 
-                fontWeight = FontWeight.Bold,
+                text = item.categoryName,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = item.note.ifBlank { "Tidak ada catatan" },
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            if (item.note.isNotBlank()) {
-                Text(
-                    text = item.note, 
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                )
-            }
             Text(
-                text = dateString, 
+                text = dateString,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         
-        Spacer(modifier = Modifier.width(8.dp))
-        
-        val isIncome = item.type == TransactionType.INCOME
-        val color = if (isIncome) id.antasari.trackingmoney.ui.theme.IncomeColor else id.antasari.trackingmoney.ui.theme.ExpenseColor
-        val sign = if (isIncome) "+" else "-"
+        val isExpense = item.type == TransactionType.EXPENSE
+        val amountColor = if (isExpense) ExpenseColor else IncomeColor
+        val sign = if (isExpense) "-" else "+"
         
         Text(
-            text = "$sign${formatRp(item.amount)}",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = color
+            text = "$sign${CurrencyUtils.formatRupiah(item.amount)}",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = amountColor
         )
     }
 }

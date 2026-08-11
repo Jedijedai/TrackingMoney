@@ -12,12 +12,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -31,16 +33,24 @@ import id.antasari.trackingmoney.utils.CurrencyUtils
 import id.antasari.trackingmoney.data.model.Category
 import id.antasari.trackingmoney.data.model.TransactionType
 import id.antasari.trackingmoney.ui.theme.ExpenseColor
+import id.antasari.trackingmoney.ui.theme.ExpenseColor
 import id.antasari.trackingmoney.ui.theme.IncomeColor
 import id.antasari.trackingmoney.ui.viewmodel.AddTransactionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransactionScreen(
+    transactionId: Int? = null,
     onNavigateBack: () -> Unit,
     viewModel: AddTransactionViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(transactionId) {
+        if (transactionId != null) {
+            viewModel.loadTransaction(transactionId)
+        }
+    }
 
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
@@ -51,10 +61,17 @@ fun AddTransactionScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tambah Transaksi", fontWeight = FontWeight.Bold) },
+                title = { Text(if (transactionId != null) "Edit Transaksi" else "Tambah Transaksi", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    if (transactionId != null) {
+                        IconButton(onClick = { viewModel.deleteTransaction() }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Hapus Transaksi", tint = MaterialTheme.colorScheme.error)
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
