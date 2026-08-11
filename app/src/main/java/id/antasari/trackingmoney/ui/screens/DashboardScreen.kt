@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.sp
 fun DashboardScreen(
     onNavigateToAddTransaction: () -> Unit = {},
     onNavigateToEditTransaction: (Int) -> Unit = {},
-    onNavigateToCategories: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
     viewModel: DashboardViewModel = viewModel()
 ) {
@@ -72,10 +72,10 @@ fun DashboardScreen(
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
-                    IconButton(onClick = onNavigateToCategories) {
+                    IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Pengaturan Kategori",
+                            contentDescription = "Pengaturan",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
