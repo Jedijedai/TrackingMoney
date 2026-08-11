@@ -59,7 +59,12 @@ fun DashboardScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tracking Money", fontWeight = FontWeight.Bold) },
+                title = { 
+                    Column {
+                        Text("Halo, ${uiState.userName}", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
+                        Text("Selamat datang kembali!", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f))
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary

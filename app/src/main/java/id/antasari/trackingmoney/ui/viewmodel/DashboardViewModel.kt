@@ -7,6 +7,7 @@ import id.antasari.trackingmoney.data.db.AppDatabase
 import id.antasari.trackingmoney.data.model.TransactionType
 import id.antasari.trackingmoney.ui.components.ChartData
 import id.antasari.trackingmoney.ui.theme.ChartColors
+import id.antasari.trackingmoney.data.preferences.ProfilePreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,13 +36,15 @@ data class DashboardUiState(
     val expenseChartData: List<ChartData> = emptyList(),
     val legendItems: List<Pair<String, androidx.compose.ui.graphics.Color>> = emptyList(),
     val recentTransactions: List<TransactionItemUiState> = emptyList(),
-    val selectedMonthName: String = ""
+    val selectedMonthName: String = "",
+    val userName: String = "Pengguna"
 )
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
     private val db = AppDatabase.getDatabase(application)
     private val transactionDao = db.transactionDao()
     private val categoryDao = db.categoryDao()
+    private val profilePreferences = ProfilePreferences(application)
 
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
@@ -138,6 +141,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                         recentTransactions = recentList,
                         selectedMonthName = monthName
                     )
+                }.combine(profilePreferences.userName) { state, name ->
+                    state.copy(userName = name)
                 }
             }.collect { newState ->
                 _uiState.value = newState

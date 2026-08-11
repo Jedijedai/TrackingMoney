@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import id.antasari.trackingmoney.data.model.Frequency
+import id.antasari.trackingmoney.data.model.RecurringTransaction
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.firstOrNull
@@ -24,6 +26,8 @@ data class AddTransactionUiState(
     val selectedType: TransactionType = TransactionType.EXPENSE,
     val selectedCategory: Category? = null,
     val categories: List<Category> = emptyList(),
+    val isRecurring: Boolean = false,
+    val recurringFrequency: Frequency = Frequency.MONTHLY,
     val isSaved: Boolean = false,
     val isSaving: Boolean = false,
     val transactionId: Int? = null,
@@ -39,6 +43,7 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
     private val db = AppDatabase.getDatabase(application)
     private val categoryDao = db.categoryDao()
     private val transactionDao = db.transactionDao()
+    private val recurringTransactionDao = db.recurringTransactionDao()
 
     private val _uiState = MutableStateFlow(AddTransactionUiState())
     val uiState: StateFlow<AddTransactionUiState> = _uiState.asStateFlow()
@@ -86,6 +91,14 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
 
     fun setNote(note: String) {
         _uiState.value = _uiState.value.copy(note = note)
+    }
+
+    fun setIsRecurring(isRecurring: Boolean) {
+        _uiState.value = _uiState.value.copy(isRecurring = isRecurring)
+    }
+
+    fun setRecurringFrequency(frequency: Frequency) {
+        _uiState.value = _uiState.value.copy(recurringFrequency = frequency)
     }
 
     fun setDate(millis: Long) {
@@ -142,6 +155,25 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
                     transactionDao.updateTransaction(transaction)
                 } else {
                     transactionDao.insertTransaction(transaction)
+                    if (currentState.isRecurring) {
+                        val calendar = java.util.Calendar.getInstance()
+                        calendar.timeInMillis = transaction.dateMillis
+                        when (currentState.recurringFrequency) {
+                            Frequency.DAILY -> calendar.add(java.util.Calendar.DAY_OF_YEAR, 1)
+                            Frequency.WEEKLY -> calendar.add(java.util.Calendar.WEEK_OF_YEAR, 1)
+                            Frequency.MONTHLY -> calendar.add(java.util.Calendar.MONTH, 1)
+                            Frequency.YEARLY -> calendar.add(java.util.Calendar.YEAR, 1)
+                        }
+                        val recurring = RecurringTransaction(
+                            amount = transaction.amount,
+                            categoryId = transaction.categoryId,
+                            note = transaction.note,
+                            type = transaction.type,
+                            frequency = currentState.recurringFrequency,
+                            nextDueDateMillis = calendar.timeInMillis
+                        )
+                        recurringTransactionDao.insertRecurringTransaction(recurring)
+                    }
                 }
                 _uiState.value = _uiState.value.copy(isSaving = false, isSaved = true)
             }

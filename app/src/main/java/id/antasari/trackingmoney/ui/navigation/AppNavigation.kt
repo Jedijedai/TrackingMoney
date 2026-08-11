@@ -11,6 +11,8 @@ import id.antasari.trackingmoney.ui.screens.DashboardScreen
 import id.antasari.trackingmoney.ui.screens.SettingsScreen
 import id.antasari.trackingmoney.ui.screens.CategoryManageScreen
 import id.antasari.trackingmoney.ui.screens.SearchScreen
+import id.antasari.trackingmoney.ui.screens.ProfileScreen
+import id.antasari.trackingmoney.ui.screens.RecurringManageScreen
 
 @Composable
 fun AppNavigation() {
@@ -48,7 +50,19 @@ fun AppNavigation() {
         composable("settings") {
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateToCategoryManage = { navController.navigate("categories_manage") }
+                onNavigateToCategoryManage = { navController.navigate("categories_manage") },
+                onNavigateToRecurringManage = { navController.navigate("recurring_manage") },
+                onNavigateToProfile = { navController.navigate("profile") }
+            )
+        }
+        composable("profile") {
+            ProfileScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("recurring_manage") {
+            RecurringManageScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable("categories_manage") {
