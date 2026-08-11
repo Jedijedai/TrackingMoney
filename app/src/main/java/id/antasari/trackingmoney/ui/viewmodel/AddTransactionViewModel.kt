@@ -27,7 +27,7 @@ data class AddTransactionUiState(
     val isSaved: Boolean = false,
     val isSaving: Boolean = false,
     val transactionId: Int? = null,
-    val dateMillis: Long? = null
+    val dateMillis: Long = System.currentTimeMillis()
 )
 
 class AddTransactionViewModel(application: Application) : AndroidViewModel(application) {
@@ -81,6 +81,10 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
 
     fun setNote(note: String) {
         _uiState.value = _uiState.value.copy(note = note)
+    }
+
+    fun setDate(millis: Long) {
+        _uiState.value = _uiState.value.copy(dateMillis = millis)
     }
 
     fun setCategory(category: Category) {

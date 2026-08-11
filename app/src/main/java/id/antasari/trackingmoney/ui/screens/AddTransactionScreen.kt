@@ -36,6 +36,9 @@ import id.antasari.trackingmoney.ui.theme.ExpenseColor
 import id.antasari.trackingmoney.ui.theme.ExpenseColor
 import id.antasari.trackingmoney.ui.theme.IncomeColor
 import id.antasari.trackingmoney.ui.viewmodel.AddTransactionViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +58,32 @@ fun AddTransactionScreen(
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
             onNavigateBack()
+        }
+    }
+
+    var showDatePicker by remember { mutableStateOf(false) }
+    
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = uiState.dateMillis
+        )
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { viewModel.setDate(it) }
+                    showDatePicker = false
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Batal")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 
@@ -126,6 +155,25 @@ fun AddTransactionScreen(
                         }
                     )
                 }
+            }
+
+            // Date Picker Field
+            val formatter = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+            val dateStr = formatter.format(Date(uiState.dateMillis))
+            Box(modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true }) {
+                OutlinedTextField(
+                    value = dateStr,
+                    onValueChange = { },
+                    label = { Text("Tanggal") },
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = false,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
             }
 
             // Amount Input
