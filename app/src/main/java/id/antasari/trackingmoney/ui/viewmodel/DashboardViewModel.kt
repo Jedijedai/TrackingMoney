@@ -72,7 +72,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
             _selectedDate.flatMapLatest { calendar ->
                 val cal = calendar.clone() as Calendar
-                val formatter = SimpleDateFormat("MMMM yyyy", Locale("id", "ID")).apply {
+                val formatter = SimpleDateFormat("MMMM yyyy", Locale.Builder().setLanguage("id").setRegion("ID").build()).apply {
                     timeZone = java.util.TimeZone.getTimeZone("UTC")
                 }
                 val monthName = formatter.format(cal.time)

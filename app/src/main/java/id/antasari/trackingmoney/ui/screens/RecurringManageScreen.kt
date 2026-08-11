@@ -84,7 +84,7 @@ fun RecurringManageScreen(
 
 @Composable
 fun RecurringItemRow(item: RecurringTransactionItemUiState, onDelete: () -> Unit) {
-    val formatter = SimpleDateFormat("dd MMM yyyy", Locale("id", "ID"))
+    val formatter = SimpleDateFormat("dd MMM yyyy", Locale.Builder().setLanguage("id").setRegion("ID").build())
     val nextDateString = formatter.format(Date(item.recurring.nextDueDateMillis))
 
     val freqString = when (item.recurring.frequency) {

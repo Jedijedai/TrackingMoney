@@ -7,14 +7,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -47,9 +49,9 @@ fun SettingsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         }
@@ -61,71 +63,128 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
+            Spacer(modifier = Modifier.height(16.dp))
             // Profile Section
             SettingsSectionHeader(title = "Profil & Akun")
-            
-            ListItem(
-                headlineContent = { Text("Pengaturan Profil") },
-                supportingContent = { Text("Ubah nama dan info pribadi") },
-                leadingContent = {
-                    Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                },
-                trailingContent = {
-                    Icon(Icons.Default.ArrowForward, contentDescription = null)
-                },
-                modifier = Modifier.clickable { onNavigateToProfile() }
-            )
-            
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            SettingsCard {
+                SettingsItem(
+                    title = "Pengaturan Profil",
+                    subtitle = "Ubah nama dan info pribadi",
+                    icon = Icons.Default.Person,
+                    onClick = onNavigateToProfile
+                )
+            }
             
             // Theme Setting Section
             SettingsSectionHeader(title = "Preferensi Tampilan")
-            
-            ThemeSelectionItem(
-                currentMode = themeMode,
-                onModeSelected = { viewModel.setThemeMode(it) }
-            )
-            
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            SettingsCard {
+                ThemeSelectionItem(
+                    currentMode = themeMode,
+                    onModeSelected = { viewModel.setThemeMode(it) }
+                )
+            }
             
             // Categories Setting Section
             SettingsSectionHeader(title = "Manajemen Data")
-            
-            ListItem(
-                headlineContent = { Text("Kategori Transaksi") },
-                supportingContent = { Text("Tambah, ubah, atau hapus kategori") },
-                leadingContent = {
-                    Icon(Icons.Default.List, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                },
-                trailingContent = {
-                    Icon(Icons.Default.ArrowForward, contentDescription = null)
-                },
-                modifier = Modifier.clickable { onNavigateToCategoryManage() }
-            )
-            
-            ListItem(
-                headlineContent = { Text("Transaksi Berulang (Langganan)") },
-                supportingContent = { Text("Kelola tagihan yang berjalan otomatis") },
-                leadingContent = {
-                    Icon(Icons.Default.Refresh, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                },
-                trailingContent = {
-                    Icon(Icons.Default.ArrowForward, contentDescription = null)
-                },
-                modifier = Modifier.clickable { onNavigateToRecurringManage() }
-            )
-            
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            SettingsCard {
+                SettingsItem(
+                    title = "Kategori Transaksi",
+                    subtitle = "Tambah, ubah, atau hapus kategori",
+                    icon = Icons.AutoMirrored.Filled.List,
+                    onClick = onNavigateToCategoryManage
+                )
+                HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
+                SettingsItem(
+                    title = "Transaksi Berulang",
+                    subtitle = "Kelola tagihan yang berjalan otomatis",
+                    icon = Icons.Default.Refresh,
+                    onClick = onNavigateToRecurringManage
+                )
+            }
             
             // About Section
             SettingsSectionHeader(title = "Tentang Aplikasi")
+            SettingsCard {
+                SettingsItem(
+                    title = "Versi Aplikasi",
+                    subtitle = "v${BuildConfig.VERSION_NAME}",
+                    icon = Icons.Default.Info,
+                    showArrow = false
+                )
+            }
             
-            ListItem(
-                headlineContent = { Text("Versi Aplikasi") },
-                supportingContent = { Text("v${BuildConfig.VERSION_NAME}") },
-                leadingContent = {
-                    Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                }
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+@Composable
+fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(content = content)
+    }
+}
+
+@Composable
+fun SettingsItem(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    showArrow: Boolean = true,
+    onClick: (() -> Unit)? = null
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+        
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 16.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        
+        if (showArrow) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(16.dp)
             )
         }
     }
@@ -135,10 +194,10 @@ fun SettingsScreen(
 fun SettingsSectionHeader(title: String) {
     Text(
         text = title,
-        color = MaterialTheme.colorScheme.primary,
-        style = MaterialTheme.typography.titleSmall,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(start = 32.dp, top = 24.dp, bottom = 8.dp)
     )
 }
 
@@ -148,16 +207,33 @@ fun ThemeSelectionItem(
     onModeSelected: (ThemeMode) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        ListItem(
-            headlineContent = { Text("Tema Aplikasi") },
-            leadingContent = {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             }
-        )
+            Text(
+                text = "Tema Aplikasi",
+                modifier = Modifier.padding(start = 16.dp),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()

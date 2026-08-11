@@ -168,7 +168,7 @@ fun AddTransactionScreen(
             }
 
             // Date Picker Field
-            val formatter = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply {
+            val formatter = SimpleDateFormat("dd MMMM yyyy", Locale.Builder().setLanguage("id").setRegion("ID").build()).apply {
                 timeZone = java.util.TimeZone.getTimeZone("UTC")
             }
             val dateStr = formatter.format(Date(uiState.dateMillis))
@@ -257,7 +257,7 @@ fun AddTransactionScreen(
                                     readOnly = true,
                                     label = { Text("Frekuensi") },
                                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                                    modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
                                 )
                                 ExposedDropdownMenu(
                                     expanded = expanded,
