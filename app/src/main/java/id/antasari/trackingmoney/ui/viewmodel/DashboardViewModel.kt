@@ -10,16 +10,27 @@ import id.antasari.trackingmoney.ui.theme.ChartColors
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.Calendar
+
+data class TransactionItemUiState(
+    val id: Int,
+    val icon: String,
+    val categoryName: String,
+    val note: String,
+    val amount: Long,
+    val dateMillis: Long,
+    val type: TransactionType
+)
 
 data class DashboardUiState(
     val totalIncome: Long = 0L,
     val totalExpense: Long = 0L,
     val totalBalance: Long = 0L,
     val expenseChartData: List<ChartData> = emptyList(),
-    val legendItems: List<Pair<String, androidx.compose.ui.graphics.Color>> = emptyList()
+    val legendItems: List<Pair<String, androidx.compose.ui.graphics.Color>> = emptyList(),
+    val recentTransactions: List<TransactionItemUiState> = emptyList()
 )
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
@@ -64,8 +75,10 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             }
             
             launch {
-                transactionDao.getTransactionsByDateRange(startOfMonth, endOfMonth).collect { txs ->
-                    val allCategories = categoryDao.getAllCategories().first()
+                combine(
+                    transactionDao.getTransactionsByDateRange(startOfMonth, endOfMonth),
+                    categoryDao.getAllCategories()
+                ) { txs, allCategories ->
                     val expensesThisMonth = txs.filter { it.type == TransactionType.EXPENSE }
                     val groupedExpenses = expensesThisMonth.groupBy { it.categoryId }
                     
@@ -83,12 +96,26 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                         legendList.add(name to color)
                         colorIndex++
                     }
+
+                    val recentList = txs.sortedByDescending { it.dateMillis }.map { tx ->
+                        val category = allCategories.find { it.id == tx.categoryId }
+                        TransactionItemUiState(
+                            id = tx.id,
+                            icon = category?.icon ?: "❓",
+                            categoryName = category?.name ?: "Unknown",
+                            note = tx.note,
+                            amount = tx.amount,
+                            dateMillis = tx.dateMillis,
+                            type = tx.type
+                        )
+                    }
                     
                     _uiState.value = _uiState.value.copy(
                         expenseChartData = chartDataList,
-                        legendItems = legendList
+                        legendItems = legendList,
+                        recentTransactions = recentList
                     )
-                }
+                }.collect { }
             }
         }
     }
