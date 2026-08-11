@@ -8,8 +8,10 @@ object CurrencyUtils {
         // Use Locale("id", "ID") for Indonesian Rupiah formatting
         val localeID = Locale("id", "ID")
         val numberFormat = NumberFormat.getCurrencyInstance(localeID)
-        // This will typically output something like "Rp1.000.000,00"
-        // Let's add a space after Rp to match "Rp 1.000.000,00" if desired
+        numberFormat.maximumFractionDigits = 0
+        
+        // This will typically output something like "Rp1.000.000"
+        // Let's add a space after Rp to match "Rp 1.000.000" if desired
         var formatted = numberFormat.format(amount)
         if (formatted.startsWith("Rp") && !formatted.startsWith("Rp ")) {
             formatted = formatted.replace("Rp", "Rp ")
