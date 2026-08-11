@@ -8,6 +8,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import id.antasari.trackingmoney.ui.screens.AddTransactionScreen
 import id.antasari.trackingmoney.ui.screens.DashboardScreen
+import id.antasari.trackingmoney.ui.screens.SettingsScreen
 import id.antasari.trackingmoney.ui.screens.CategoryManageScreen
 import id.antasari.trackingmoney.ui.screens.SearchScreen
 
@@ -24,8 +25,8 @@ fun AppNavigation() {
                 onNavigateToEditTransaction = { id ->
                     navController.navigate("add_transaction?id=$id")
                 },
-                onNavigateToCategories = {
-                    navController.navigate("categories_manage")
+                onNavigateToSettings = {
+                    navController.navigate("settings")
                 },
                 onNavigateToSearch = {
                     navController.navigate("search_transactions")

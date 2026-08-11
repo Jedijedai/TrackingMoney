@@ -62,6 +62,9 @@ dependencies {
     // Navigation Compose
     implementation(libs.androidx.navigation.compose)
 
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+
     // Splash Screen
     implementation(libs.androidx.core.splashscreen)
 
