@@ -3,8 +3,8 @@ package id.antasari.trackingmoney.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // Primary Colors (Premium Emerald)
-val BluePrimary = Color(0xFF059669) // Emerald 600
-val BluePrimaryDark = Color(0xFF047857) // Emerald 700
+val BluePrimary = Color(0xFF047857) // Emerald 700
+val BluePrimaryDark = Color(0xFF065F46) // Emerald 800
 val BlueLight = Color(0xFFD1FAE5) // Emerald 100
 
 // Dark Theme Colors (OLED/Zinc)

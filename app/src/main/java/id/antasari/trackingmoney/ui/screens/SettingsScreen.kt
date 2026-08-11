@@ -138,12 +138,12 @@ fun SettingsItem(
     subtitle: String,
     icon: ImageVector,
     showArrow: Boolean = true,
-    onClick: () -> Unit = {}
+    onClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -39,7 +39,7 @@ private val LightColorScheme = lightColorScheme(
     onBackground = LightText,
     onSurface = LightText,
     surfaceVariant = Color(0xFFF1F5F9), // Slate 100
-    onSurfaceVariant = Color(0xFF64748B) // Slate 500
+    onSurfaceVariant = Color(0xFF334155) // Slate 700
 )
 
 @Composable
