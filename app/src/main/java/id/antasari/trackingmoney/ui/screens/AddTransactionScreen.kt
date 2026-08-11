@@ -19,7 +19,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -36,6 +40,9 @@ import id.antasari.trackingmoney.ui.theme.ExpenseColor
 import id.antasari.trackingmoney.ui.theme.ExpenseColor
 import id.antasari.trackingmoney.ui.theme.IncomeColor
 import id.antasari.trackingmoney.ui.viewmodel.AddTransactionViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +62,37 @@ fun AddTransactionScreen(
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
             onNavigateBack()
+        }
+    }
+
+    var showDatePicker by remember { mutableStateOf(false) }
+    
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = uiState.dateMillis
+        )
+        
+        LaunchedEffect(uiState.dateMillis) {
+            datePickerState.selectedDateMillis = uiState.dateMillis
+        }
+
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { viewModel.setDate(it) }
+                    showDatePicker = false
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Batal")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 
@@ -126,6 +164,30 @@ fun AddTransactionScreen(
                         }
                     )
                 }
+            }
+
+            // Date Picker Field
+            val formatter = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply {
+                timeZone = java.util.TimeZone.getTimeZone("UTC")
+            }
+            val dateStr = formatter.format(Date(uiState.dateMillis))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = dateStr,
+                    onValueChange = { },
+                    label = { Text("Tanggal") },
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = true
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .semantics {
+                            contentDescription = "Pilih tanggal, saat ini $dateStr"
+                        }
+                        .clickable(role = Role.Button) { showDatePicker = true }
+                )
             }
 
             // Amount Input

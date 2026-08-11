@@ -8,6 +8,8 @@ import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import id.antasari.trackingmoney.ui.screens.AddTransactionScreen
 import id.antasari.trackingmoney.ui.screens.DashboardScreen
+import id.antasari.trackingmoney.ui.screens.CategoryManageScreen
+import id.antasari.trackingmoney.ui.screens.SearchScreen
 
 @Composable
 fun AppNavigation() {
@@ -21,6 +23,12 @@ fun AppNavigation() {
                 },
                 onNavigateToEditTransaction = { id ->
                     navController.navigate("add_transaction?id=$id")
+                },
+                onNavigateToCategories = {
+                    navController.navigate("categories_manage")
+                },
+                onNavigateToSearch = {
+                    navController.navigate("search_transactions")
                 }
             )
         }
@@ -33,6 +41,23 @@ fun AppNavigation() {
                 transactionId = id,
                 onNavigateBack = {
                     navController.popBackStack()
+                }
+            )
+        }
+        composable("categories_manage") {
+            CategoryManageScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable("search_transactions") {
+            SearchScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToEditTransaction = { id ->
+                    navController.navigate("add_transaction?id=$id")
                 }
             )
         }
