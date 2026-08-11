@@ -3,8 +3,9 @@ package id.antasari.trackingmoney.ui.screens
 import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -66,15 +67,15 @@ fun DashboardScreen(
             }
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .background(MaterialTheme.colorScheme.background),
+            contentPadding = PaddingValues(16.dp)
         ) {
-            // Summary Card
+            item {
+                // Summary Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
@@ -128,13 +129,13 @@ fun DashboardScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            DonutChart(
-                data = uiState.expenseChartData,
-                totalAmountText = formatRp(uiState.totalExpense),
-                modifier = Modifier
-                    .size(240.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                DonutChart(
+                    data = uiState.expenseChartData,
+                    totalAmountText = formatRp(uiState.totalExpense),
+                    modifier = Modifier.size(240.dp)
+                )
+            }
             
             Spacer(modifier = Modifier.height(24.dp))
             
@@ -149,34 +150,41 @@ fun DashboardScreen(
                     LegendItem(color = color, label = label)
                 }
             }
+            }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
 
-            // Recent Transactions
-            Text(
-                text = "Riwayat Terbaru",
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            if (uiState.recentTransactions.isEmpty()) {
+                // Recent Transactions
                 Text(
-                    text = "Belum ada transaksi bulan ini",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    text = "Riwayat Terbaru",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground
                 )
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    uiState.recentTransactions.forEach { item ->
-                        TransactionItemRow(item = item, onEditClick = { onNavigateToEditTransaction(it) })
-                    }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                if (uiState.recentTransactions.isEmpty()) {
+                    Text(
+                        text = "Belum ada transaksi bulan ini",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
                 }
             }
             
-            Spacer(modifier = Modifier.height(32.dp))
+            if (uiState.recentTransactions.isNotEmpty()) {
+                items(uiState.recentTransactions) { item ->
+                    TransactionItemRow(item = item, onEditClick = { onNavigateToEditTransaction(it) })
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+            
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
+            }
         }
     }
 }
