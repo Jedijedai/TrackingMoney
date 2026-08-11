@@ -45,6 +45,12 @@ fun AppNavigation() {
                 }
             )
         }
+        composable("settings") {
+            SettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToCategoryManage = { navController.navigate("categories_manage") }
+            )
+        }
         composable("categories_manage") {
             CategoryManageScreen(
                 onNavigateBack = {
