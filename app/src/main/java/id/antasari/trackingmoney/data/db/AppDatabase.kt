@@ -31,6 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "tracking_money_db"
                 )
+                .fallbackToDestructiveMigration()
                 .addCallback(DatabaseCallback())
                 .build().also { INSTANCE = it }
             }
@@ -49,14 +50,14 @@ abstract class AppDatabase : RoomDatabase() {
 
         suspend fun populateDatabase(categoryDao: CategoryDao) {
             val defaultCategories = listOf(
-                Category(name = "Makan", type = TransactionType.EXPENSE, isDefault = true),
-                Category(name = "Bensin", type = TransactionType.EXPENSE, isDefault = true),
-                Category(name = "Kebutuhan", type = TransactionType.EXPENSE, isDefault = true),
-                Category(name = "Lainnya", type = TransactionType.EXPENSE, isDefault = true),
+                Category(name = "Makan", type = TransactionType.EXPENSE, icon = "🍗", isDefault = true),
+                Category(name = "Bensin", type = TransactionType.EXPENSE, icon = "⛽", isDefault = true),
+                Category(name = "Kebutuhan", type = TransactionType.EXPENSE, icon = "🛍️", isDefault = true),
+                Category(name = "Lainnya", type = TransactionType.EXPENSE, icon = "💸", isDefault = true),
                 
-                Category(name = "Gaji", type = TransactionType.INCOME, isDefault = true),
-                Category(name = "Pemberian", type = TransactionType.INCOME, isDefault = true),
-                Category(name = "Lainnya", type = TransactionType.INCOME, isDefault = true)
+                Category(name = "Gaji", type = TransactionType.INCOME, icon = "💰", isDefault = true),
+                Category(name = "Pemberian", type = TransactionType.INCOME, icon = "🎁", isDefault = true),
+                Category(name = "Lainnya", type = TransactionType.INCOME, icon = "💵", isDefault = true)
             )
             categoryDao.insertCategories(defaultCategories)
         }
