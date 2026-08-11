@@ -153,6 +153,7 @@ fun AddTransactionScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             // Save Button
+            val amountVal = uiState.amount.toLongOrNull() ?: 0L
             Button(
                 onClick = { viewModel.saveTransaction() },
                 modifier = Modifier
@@ -162,7 +163,7 @@ fun AddTransactionScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (uiState.selectedType == TransactionType.EXPENSE) ExpenseColor else IncomeColor
                 ),
-                enabled = uiState.amount.isNotEmpty() && uiState.selectedCategory != null
+                enabled = !uiState.isSaving && !uiState.isSaved && amountVal > 0 && uiState.selectedCategory != null
             ) {
                 Text("Simpan", style = MaterialTheme.typography.titleLarge)
             }

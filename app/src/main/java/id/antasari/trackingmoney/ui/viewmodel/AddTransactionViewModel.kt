@@ -7,9 +7,14 @@ import id.antasari.trackingmoney.data.db.AppDatabase
 import id.antasari.trackingmoney.data.model.Category
 import id.antasari.trackingmoney.data.model.Transaction
 import id.antasari.trackingmoney.data.model.TransactionType
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 data class AddTransactionUiState(
@@ -18,7 +23,8 @@ data class AddTransactionUiState(
     val selectedType: TransactionType = TransactionType.EXPENSE,
     val selectedCategory: Category? = null,
     val categories: List<Category> = emptyList(),
-    val isSaved: Boolean = false
+    val isSaved: Boolean = false,
+    val isSaving: Boolean = false
 )
 
 class AddTransactionViewModel(application: Application) : AndroidViewModel(application) {
@@ -33,28 +39,34 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
         loadCategories()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadCategories() {
         viewModelScope.launch {
-            categoryDao.getAllCategories().collect { cats ->
-                _uiState.value = _uiState.value.copy(
-                    categories = cats.filter { it.type == _uiState.value.selectedType },
-                    selectedCategory = cats.firstOrNull { it.type == _uiState.value.selectedType }
-                )
-            }
+            _uiState.map { it.selectedType }
+                .distinctUntilChanged()
+                .flatMapLatest { type ->
+                    categoryDao.getCategoriesByType(type.name)
+                }
+                .collectLatest { cats ->
+                    // Make sure the selected category is valid for the current type
+                    val currentSelected = _uiState.value.selectedCategory
+                    val newSelected = if (currentSelected != null && cats.any { it.id == currentSelected.id }) {
+                        currentSelected
+                    } else {
+                        cats.firstOrNull()
+                    }
+
+                    _uiState.value = _uiState.value.copy(
+                        categories = cats,
+                        selectedCategory = newSelected
+                    )
+                }
         }
     }
 
     fun setTransactionType(type: TransactionType) {
-        _uiState.value = _uiState.value.copy(selectedType = type)
-        // Refresh categories based on new type
-        viewModelScope.launch {
-            categoryDao.getAllCategories().collect { cats ->
-                val filtered = cats.filter { it.type == type }
-                _uiState.value = _uiState.value.copy(
-                    categories = filtered,
-                    selectedCategory = filtered.firstOrNull()
-                )
-            }
+        if (_uiState.value.selectedType != type) {
+            _uiState.value = _uiState.value.copy(selectedType = type, selectedCategory = null)
         }
     }
 
@@ -74,10 +86,13 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
 
     fun saveTransaction() {
         val currentState = _uiState.value
+        if (currentState.isSaving || currentState.isSaved) return
+
         val amountVal = currentState.amount.toLongOrNull() ?: 0L
         val categoryId = currentState.selectedCategory?.id
         
         if (amountVal > 0 && categoryId != null) {
+            _uiState.value = currentState.copy(isSaving = true)
             viewModelScope.launch {
                 val transaction = Transaction(
                     amount = amountVal,
@@ -87,7 +102,7 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
                     type = currentState.selectedType
                 )
                 transactionDao.insertTransaction(transaction)
-                _uiState.value = currentState.copy(isSaved = true)
+                _uiState.value = _uiState.value.copy(isSaving = false, isSaved = true)
             }
         }
     }
