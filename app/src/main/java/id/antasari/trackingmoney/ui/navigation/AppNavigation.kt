@@ -8,6 +8,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import id.antasari.trackingmoney.ui.screens.AddTransactionScreen
 import id.antasari.trackingmoney.ui.screens.DashboardScreen
+import id.antasari.trackingmoney.ui.screens.CategoryManageScreen
 
 @Composable
 fun AppNavigation() {
@@ -21,6 +22,9 @@ fun AppNavigation() {
                 },
                 onNavigateToEditTransaction = { id ->
                     navController.navigate("add_transaction?id=$id")
+                },
+                onNavigateToCategories = {
+                    navController.navigate("categories_manage")
                 }
             )
         }
@@ -31,6 +35,13 @@ fun AppNavigation() {
             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
             AddTransactionScreen(
                 transactionId = id,
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable("categories_manage") {
+            CategoryManageScreen(
                 onNavigateBack = {
                     navController.popBackStack()
                 }
