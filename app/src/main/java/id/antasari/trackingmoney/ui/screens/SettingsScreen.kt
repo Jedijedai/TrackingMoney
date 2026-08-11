@@ -3,11 +3,16 @@ package id.antasari.trackingmoney.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -17,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import id.antasari.trackingmoney.BuildConfig
 import id.antasari.trackingmoney.data.preferences.ThemeMode
 import id.antasari.trackingmoney.ui.viewmodel.SettingsViewModel
 
@@ -25,6 +31,8 @@ import id.antasari.trackingmoney.ui.viewmodel.SettingsViewModel
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToCategoryManage: () -> Unit,
+    onNavigateToRecurringManage: () -> Unit,
+    onNavigateToProfile: () -> Unit,
     viewModel: SettingsViewModel = viewModel()
 ) {
     val themeMode by viewModel.themeMode.collectAsState()
@@ -51,9 +59,27 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
+            // Profile Section
+            SettingsSectionHeader(title = "Profil & Akun")
+            
+            ListItem(
+                headlineContent = { Text("Pengaturan Profil") },
+                supportingContent = { Text("Ubah nama dan info pribadi") },
+                leadingContent = {
+                    Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                },
+                trailingContent = {
+                    Icon(Icons.Default.ArrowForward, contentDescription = null)
+                },
+                modifier = Modifier.clickable { onNavigateToProfile() }
+            )
+            
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            
             // Theme Setting Section
-            SettingsSectionHeader(title = "Tampilan")
+            SettingsSectionHeader(title = "Preferensi Tampilan")
             
             ThemeSelectionItem(
                 currentMode = themeMode,
@@ -63,25 +89,43 @@ fun SettingsScreen(
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             
             // Categories Setting Section
-            SettingsSectionHeader(title = "Kategori & Transaksi")
+            SettingsSectionHeader(title = "Manajemen Data")
             
             ListItem(
-                headlineContent = { Text("Manajemen Kategori") },
+                headlineContent = { Text("Kategori Transaksi") },
                 supportingContent = { Text("Tambah, ubah, atau hapus kategori") },
                 leadingContent = {
-                    Icon(
-                        imageVector = Icons.Default.List,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    Icon(Icons.Default.List, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 },
                 trailingContent = {
-                    Icon(
-                        imageVector = Icons.Default.ArrowForward,
-                        contentDescription = null
-                    )
+                    Icon(Icons.Default.ArrowForward, contentDescription = null)
                 },
                 modifier = Modifier.clickable { onNavigateToCategoryManage() }
+            )
+            
+            ListItem(
+                headlineContent = { Text("Transaksi Berulang (Langganan)") },
+                supportingContent = { Text("Kelola tagihan yang berjalan otomatis") },
+                leadingContent = {
+                    Icon(Icons.Default.Refresh, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                },
+                trailingContent = {
+                    Icon(Icons.Default.ArrowForward, contentDescription = null)
+                },
+                modifier = Modifier.clickable { onNavigateToRecurringManage() }
+            )
+            
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            
+            // About Section
+            SettingsSectionHeader(title = "Tentang Aplikasi")
+            
+            ListItem(
+                headlineContent = { Text("Versi Aplikasi") },
+                supportingContent = { Text("v${BuildConfig.VERSION_NAME}") },
+                leadingContent = {
+                    Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                }
             )
         }
     }

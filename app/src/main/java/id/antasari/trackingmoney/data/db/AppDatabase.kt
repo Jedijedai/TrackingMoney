@@ -8,18 +8,22 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import id.antasari.trackingmoney.data.dao.CategoryDao
 import id.antasari.trackingmoney.data.dao.TransactionDao
 import id.antasari.trackingmoney.data.model.Category
+import id.antasari.trackingmoney.data.model.RecurringTransaction
 import id.antasari.trackingmoney.data.model.Transaction
 import id.antasari.trackingmoney.data.model.TransactionType
+import id.antasari.trackingmoney.data.dao.RecurringTransactionDao
+import androidx.room.migration.Migration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-@Database(entities = [Category::class, Transaction::class], version = 2, exportSchema = false)
+@Database(entities = [Category::class, Transaction::class, RecurringTransaction::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun categoryDao(): CategoryDao
     abstract fun transactionDao(): TransactionDao
+    abstract fun recurringTransactionDao(): RecurringTransactionDao
 
     companion object {
         @Volatile
@@ -32,9 +36,27 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "tracking_money_db"
                 )
+                .addMigrations(MIGRATION_2_3)
                 .fallbackToDestructiveMigration()
                 .addCallback(DatabaseCallback())
                 .build().also { INSTANCE = it }
+            }
+        }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `recurring_transactions` (" +
+                            "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`amount` INTEGER NOT NULL, " +
+                            "`categoryId` INTEGER NOT NULL, " +
+                            "`note` TEXT NOT NULL, " +
+                            "`type` TEXT NOT NULL, " +
+                            "`frequency` TEXT NOT NULL, " +
+                            "`nextDueDateMillis` INTEGER NOT NULL, " +
+                            "FOREIGN KEY(`categoryId`) REFERENCES `categories`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT)"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_recurring_transactions_categoryId` ON `recurring_transactions` (`categoryId`)")
             }
         }
     }

@@ -13,12 +13,20 @@ import id.antasari.trackingmoney.data.preferences.ThemeMode
 import id.antasari.trackingmoney.ui.navigation.AppNavigation
 import id.antasari.trackingmoney.ui.theme.TrackingMoneyTheme
 import id.antasari.trackingmoney.ui.viewmodel.SettingsViewModel
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import id.antasari.trackingmoney.worker.RecurringWorker
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        
+        setupRecurringWorker()
+
         setContent {
             val settingsViewModel: SettingsViewModel = viewModel()
             val themeMode by settingsViewModel.themeMode.collectAsState()
@@ -33,5 +41,15 @@ class MainActivity : ComponentActivity() {
                 AppNavigation()
             }
         }
+    }
+
+    private fun setupRecurringWorker() {
+        val workRequest = PeriodicWorkRequestBuilder<RecurringWorker>(24, TimeUnit.HOURS)
+            .build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "recurring_transactions_worker",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
     }
 }

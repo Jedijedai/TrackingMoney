@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.AnnotatedString
 import id.antasari.trackingmoney.utils.CurrencyUtils
 import id.antasari.trackingmoney.data.model.Category
+import id.antasari.trackingmoney.data.model.Frequency
 import id.antasari.trackingmoney.data.model.TransactionType
 import id.antasari.trackingmoney.ui.theme.ExpenseColor
 import id.antasari.trackingmoney.ui.theme.ExpenseColor
@@ -212,6 +213,78 @@ fun AddTransactionScreen(
                 singleLine = true,
                 shape = RoundedCornerShape(16.dp)
             )
+
+            // Recurring Options
+            if (transactionId == null) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Jadikan Transaksi Berulang",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Switch(
+                                checked = uiState.isRecurring,
+                                onCheckedChange = { viewModel.setIsRecurring(it) }
+                            )
+                        }
+
+                        if (uiState.isRecurring) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            
+                            var expanded by remember { mutableStateOf(false) }
+                            
+                            ExposedDropdownMenuBox(
+                                expanded = expanded,
+                                onExpandedChange = { expanded = it }
+                            ) {
+                                OutlinedTextField(
+                                    value = when (uiState.recurringFrequency) {
+                                        Frequency.DAILY -> "Harian"
+                                        Frequency.WEEKLY -> "Mingguan"
+                                        Frequency.MONTHLY -> "Bulanan"
+                                        Frequency.YEARLY -> "Tahunan"
+                                    },
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Frekuensi") },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Harian") },
+                                        onClick = { viewModel.setRecurringFrequency(Frequency.DAILY); expanded = false }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Mingguan") },
+                                        onClick = { viewModel.setRecurringFrequency(Frequency.WEEKLY); expanded = false }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Bulanan") },
+                                        onClick = { viewModel.setRecurringFrequency(Frequency.MONTHLY); expanded = false }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Tahunan") },
+                                        onClick = { viewModel.setRecurringFrequency(Frequency.YEARLY); expanded = false }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             // Categories Selection
             Text(
