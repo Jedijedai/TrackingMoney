@@ -24,10 +24,8 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun saveUserName(name: String) {
-        viewModelScope.launch {
-            profilePreferences.saveUserName(name)
-        }
+    suspend fun saveUserName(name: String) {
+        profilePreferences.saveUserName(name)
     }
 }
 

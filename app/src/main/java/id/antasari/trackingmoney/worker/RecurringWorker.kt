@@ -7,6 +7,7 @@ import id.antasari.trackingmoney.data.db.AppDatabase
 import id.antasari.trackingmoney.data.model.Frequency
 import id.antasari.trackingmoney.data.model.Transaction
 import java.util.Calendar
+import java.util.TimeZone
 
 class RecurringWorker(
     context: Context,
@@ -33,7 +34,7 @@ class RecurringWorker(
             transactionDao.insertTransaction(transaction)
 
             // Update next due date
-            val calendar = Calendar.getInstance()
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
             calendar.timeInMillis = recurring.nextDueDateMillis
             
             when (recurring.frequency) {

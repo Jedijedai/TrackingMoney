@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.TimeZone
 
 data class AddTransactionUiState(
     val amount: String = "",
@@ -31,11 +33,11 @@ data class AddTransactionUiState(
     val isSaved: Boolean = false,
     val isSaving: Boolean = false,
     val transactionId: Int? = null,
-    val dateMillis: Long = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
-        set(java.util.Calendar.HOUR_OF_DAY, 0)
-        set(java.util.Calendar.MINUTE, 0)
-        set(java.util.Calendar.SECOND, 0)
-        set(java.util.Calendar.MILLISECOND, 0)
+    val dateMillis: Long = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
     }.timeInMillis
 )
 
@@ -156,13 +158,13 @@ class AddTransactionViewModel(application: Application) : AndroidViewModel(appli
                 } else {
                     transactionDao.insertTransaction(transaction)
                     if (currentState.isRecurring) {
-                        val calendar = java.util.Calendar.getInstance()
+                        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
                         calendar.timeInMillis = transaction.dateMillis
                         when (currentState.recurringFrequency) {
-                            Frequency.DAILY -> calendar.add(java.util.Calendar.DAY_OF_YEAR, 1)
-                            Frequency.WEEKLY -> calendar.add(java.util.Calendar.WEEK_OF_YEAR, 1)
-                            Frequency.MONTHLY -> calendar.add(java.util.Calendar.MONTH, 1)
-                            Frequency.YEARLY -> calendar.add(java.util.Calendar.YEAR, 1)
+                            Frequency.DAILY -> calendar.add(Calendar.DAY_OF_YEAR, 1)
+                            Frequency.WEEKLY -> calendar.add(Calendar.WEEK_OF_YEAR, 1)
+                            Frequency.MONTHLY -> calendar.add(Calendar.MONTH, 1)
+                            Frequency.YEARLY -> calendar.add(Calendar.YEAR, 1)
                         }
                         val recurring = RecurringTransaction(
                             amount = transaction.amount,

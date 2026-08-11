@@ -3,6 +3,8 @@ package id.antasari.trackingmoney.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
@@ -20,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import id.antasari.trackingmoney.BuildConfig
 import id.antasari.trackingmoney.data.preferences.ThemeMode
 import id.antasari.trackingmoney.ui.viewmodel.SettingsViewModel
 
@@ -56,6 +59,7 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
             // Profile Section
             SettingsSectionHeader(title = "Profil & Akun")
@@ -118,7 +122,7 @@ fun SettingsScreen(
             
             ListItem(
                 headlineContent = { Text("Versi Aplikasi") },
-                supportingContent = { Text("v1.0.0") },
+                supportingContent = { Text("v${BuildConfig.VERSION_NAME}") },
                 leadingContent = {
                     Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 }

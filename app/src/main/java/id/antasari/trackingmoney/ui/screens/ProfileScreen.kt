@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 import id.antasari.trackingmoney.ui.viewmodel.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -21,6 +22,7 @@ fun ProfileScreen(
 ) {
     val userName by viewModel.userName.collectAsState()
     var editName by remember { mutableStateOf(userName) }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(userName) {
         editName = userName
@@ -71,8 +73,10 @@ fun ProfileScreen(
 
             Button(
                 onClick = { 
-                    viewModel.saveUserName(editName)
-                    onNavigateBack()
+                    coroutineScope.launch {
+                        viewModel.saveUserName(editName)
+                        onNavigateBack()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
