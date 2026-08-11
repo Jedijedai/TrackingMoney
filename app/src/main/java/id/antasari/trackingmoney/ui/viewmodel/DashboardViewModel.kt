@@ -10,7 +10,7 @@ import id.antasari.trackingmoney.ui.theme.ChartColors
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -75,8 +75,10 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             }
             
             launch {
-                transactionDao.getTransactionsByDateRange(startOfMonth, endOfMonth).collect { txs ->
-                    val allCategories = categoryDao.getAllCategories().first()
+                combine(
+                    transactionDao.getTransactionsByDateRange(startOfMonth, endOfMonth),
+                    categoryDao.getAllCategories()
+                ) { txs, allCategories ->
                     val expensesThisMonth = txs.filter { it.type == TransactionType.EXPENSE }
                     val groupedExpenses = expensesThisMonth.groupBy { it.categoryId }
                     
@@ -113,7 +115,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                         legendItems = legendList,
                         recentTransactions = recentList
                     )
-                }
+                }.collect { }
             }
         }
     }
