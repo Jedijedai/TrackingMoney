@@ -72,19 +72,19 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 val formatter = SimpleDateFormat("MMMM yyyy", Locale("id", "ID"))
                 val monthName = formatter.format(cal.time)
                 
-                cal.set(Calendar.DAY_OF_MONTH, 1)
-                cal.set(Calendar.HOUR_OF_DAY, 0)
-                cal.set(Calendar.MINUTE, 0)
-                cal.set(Calendar.SECOND, 0)
-                cal.set(Calendar.MILLISECOND, 0)
-                val startOfMonth = cal.timeInMillis
+                val utcCal = Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+                utcCal.clear()
+                utcCal.set(Calendar.YEAR, cal.get(Calendar.YEAR))
+                utcCal.set(Calendar.MONTH, cal.get(Calendar.MONTH))
+                utcCal.set(Calendar.DAY_OF_MONTH, 1)
+                val startOfMonth = utcCal.timeInMillis
                 
-                cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
-                cal.set(Calendar.HOUR_OF_DAY, 23)
-                cal.set(Calendar.MINUTE, 59)
-                cal.set(Calendar.SECOND, 59)
-                cal.set(Calendar.MILLISECOND, 999)
-                val endOfMonth = cal.timeInMillis
+                utcCal.set(Calendar.DAY_OF_MONTH, utcCal.getActualMaximum(Calendar.DAY_OF_MONTH))
+                utcCal.set(Calendar.HOUR_OF_DAY, 23)
+                utcCal.set(Calendar.MINUTE, 59)
+                utcCal.set(Calendar.SECOND, 59)
+                utcCal.set(Calendar.MILLISECOND, 999)
+                val endOfMonth = utcCal.timeInMillis
 
                 combine(
                     transactionDao.getTotalAmountByTypeAndDateRange(TransactionType.INCOME.name, startOfMonth, endOfMonth),

@@ -67,6 +67,11 @@ fun AddTransactionScreen(
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = uiState.dateMillis
         )
+        
+        LaunchedEffect(uiState.dateMillis) {
+            datePickerState.selectedDateMillis = uiState.dateMillis
+        }
+
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
@@ -158,21 +163,23 @@ fun AddTransactionScreen(
             }
 
             // Date Picker Field
-            val formatter = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+            val formatter = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply {
+                timeZone = java.util.TimeZone.getTimeZone("UTC")
+            }
             val dateStr = formatter.format(Date(uiState.dateMillis))
-            Box(modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true }) {
+            Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = dateStr,
                     onValueChange = { },
                     label = { Text("Tanggal") },
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = false,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                        disabledBorderColor = MaterialTheme.colorScheme.outline,
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    enabled = true
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable { showDatePicker = true }
                 )
             }
 

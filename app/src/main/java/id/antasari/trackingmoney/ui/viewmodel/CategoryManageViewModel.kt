@@ -49,7 +49,11 @@ class CategoryManageViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun setTransactionType(type: TransactionType) {
-        _uiState.value = _uiState.value.copy(selectedType = type, errorMessage = null)
+        _uiState.value = _uiState.value.copy(
+            selectedType = type,
+            categories = emptyList(),
+            errorMessage = null
+        )
     }
 
     fun saveCategory(category: Category) {

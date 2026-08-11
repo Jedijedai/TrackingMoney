@@ -27,7 +27,12 @@ data class AddTransactionUiState(
     val isSaved: Boolean = false,
     val isSaving: Boolean = false,
     val transactionId: Int? = null,
-    val dateMillis: Long = System.currentTimeMillis()
+    val dateMillis: Long = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
+        set(java.util.Calendar.HOUR_OF_DAY, 0)
+        set(java.util.Calendar.MINUTE, 0)
+        set(java.util.Calendar.SECOND, 0)
+        set(java.util.Calendar.MILLISECOND, 0)
+    }.timeInMillis
 )
 
 class AddTransactionViewModel(application: Application) : AndroidViewModel(application) {

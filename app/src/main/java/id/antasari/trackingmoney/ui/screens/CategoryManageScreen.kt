@@ -223,7 +223,7 @@ fun CategoryDialog(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedTextField(
                     value = icon,
-                    onValueChange = { if (it.length <= 2) icon = it },
+                    onValueChange = { icon = it },
                     label = { Text("Ikon (Emoji)") },
                     singleLine = true
                 )
