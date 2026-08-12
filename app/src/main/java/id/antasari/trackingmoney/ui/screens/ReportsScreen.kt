@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.lifecycle.viewmodel.compose.viewModel
 import id.antasari.trackingmoney.data.dao.CategorySum
 import id.antasari.trackingmoney.data.model.TransactionType
@@ -232,7 +234,7 @@ fun TabButton(text: String, isSelected: Boolean, onClick: () -> Unit, modifier: 
     
     Button(
         onClick = onClick,
-        modifier = modifier.height(48.dp),
+        modifier = modifier.height(48.dp).semantics { selected = isSelected },
         colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColor),
         shape = RoundedCornerShape(12.dp),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = if (isSelected) 4.dp else 0.dp)

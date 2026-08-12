@@ -22,8 +22,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import id.antasari.trackingmoney.data.dao.CategorySum
 import id.antasari.trackingmoney.data.dao.MonthlyTotal
+import java.util.Locale
 
 @Composable
 fun CategoryDonutChart(
@@ -38,7 +41,7 @@ fun CategoryDonutChart(
         val radius = (size.minDimension - strokeWidth) / 2
         val center = Offset(size.width / 2, size.height / 2)
         
-        if (total == 0f || data.isEmpty()) {
+        if (total == 0f || data.isEmpty() || colors.isEmpty()) {
             drawArc(
                 color = Color.LightGray.copy(alpha = 0.3f),
                 startAngle = 0f,
@@ -85,13 +88,17 @@ fun TrendBarChart(
     // Helper for compact numbers (e.g. 1.5M, 50K)
     val formatCompact: (Long) -> String = { amount ->
         when {
-            amount >= 1_000_000 -> String.format("%.1fM", amount / 1_000_000.0).replace(".0M", "M")
-            amount >= 1_000 -> String.format("%.1fK", amount / 1_000.0).replace(".0K", "K")
+            amount >= 1_000_000 -> String.format(Locale.US, "%.1fM", amount / 1_000_000.0).replace(".0M", "M")
+            amount >= 1_000 -> String.format(Locale.US, "%.1fK", amount / 1_000.0).replace(".0K", "K")
             else -> amount.toString()
         }
     }
 
-    Box(modifier = modifier) {
+    Box(modifier = modifier.semantics {
+        // Create an accessible description for the chart
+        val descriptions = data.map { "${it.month}: Pengeluaran ${it.totalExpense}, Pemasukan ${it.totalIncome}" }
+        contentDescription = "Grafik Tren: ${descriptions.joinToString("; ")}"
+    }) {
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
