@@ -49,6 +49,7 @@ fun DashboardScreen(
     onNavigateToEditTransaction: (Int) -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
+    onNavigateToReports: () -> Unit = {},
     viewModel: DashboardViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -83,6 +84,15 @@ fun DashboardScreen(
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    IconButton(
+                        onClick = onNavigateToReports,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                    ) {
+                        Text("📊", fontSize = 20.sp)
+                    }
                     IconButton(
                         onClick = onNavigateToSearch,
                         modifier = Modifier

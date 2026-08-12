@@ -12,6 +12,7 @@ import id.antasari.trackingmoney.data.model.RecurringTransaction
 import id.antasari.trackingmoney.data.model.Transaction
 import id.antasari.trackingmoney.data.model.TransactionType
 import id.antasari.trackingmoney.data.dao.RecurringTransactionDao
+import id.antasari.trackingmoney.data.dao.ReportDao
 import androidx.room.migration.Migration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun transactionDao(): TransactionDao
     abstract fun recurringTransactionDao(): RecurringTransactionDao
+    abstract fun reportDao(): ReportDao
 
     companion object {
         @Volatile
