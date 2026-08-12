@@ -13,6 +13,7 @@ import id.antasari.trackingmoney.ui.screens.CategoryManageScreen
 import id.antasari.trackingmoney.ui.screens.SearchScreen
 import id.antasari.trackingmoney.ui.screens.ProfileScreen
 import id.antasari.trackingmoney.ui.screens.RecurringManageScreen
+import id.antasari.trackingmoney.ui.screens.ReportsScreen
 
 @Composable
 fun AppNavigation() {
@@ -32,6 +33,9 @@ fun AppNavigation() {
                 },
                 onNavigateToSearch = {
                     navController.navigate("search_transactions")
+                },
+                onNavigateToReports = {
+                    navController.navigate("reports")
                 }
             )
         }
@@ -79,6 +83,13 @@ fun AppNavigation() {
                 },
                 onNavigateToEditTransaction = { id ->
                     navController.navigate("add_transaction?id=$id")
+                }
+            )
+        }
+        composable("reports") {
+            ReportsScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }
